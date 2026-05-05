@@ -1,71 +1,110 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { toast } from "sonner";
+import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { logWeight } from "./actions";
 
-const schema = z.object({
-  weight_kg: z
-    .number({ message: "数値で入力してください" })
-    .min(20, "20kg 以上で入力してください")
-    .max(250, "250kg 以下で入力してください"),
-});
-
-type FormValues = z.infer<typeof schema>;
-
-export function WeightForm({ todayValue }: { todayValue: number | null }) {
+export function WeightForm({
+  todayValue,
+  lastKnownValue,
+}: {
+  todayValue: number | null;
+  lastKnownValue: number | null;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: todayValue != null ? { weight_kg: todayValue } : undefined,
-  });
+  const initial = todayValue ?? lastKnownValue ?? 70.0;
+  const [weight, setWeight] = useState<number>(initial);
 
-  function onSubmit(values: FormValues) {
+  function adjust(delta: number) {
+    setWeight((w) => +(Math.max(20, Math.min(250, w + delta))).toFixed(1));
+  }
+
+  function onSubmit() {
+    if (!Number.isFinite(weight) || weight < 20 || weight > 250) {
+      toast.error("20〜250kg の範囲で入力してください");
+      return;
+    }
     startTransition(async () => {
-      const result = await logWeight(values);
+      const result = await logWeight({ weight_kg: weight });
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
-      toast.success("体重を記録しました");
+      toast.success(todayValue != null ? "体重を更新しました" : "体重を記録しました（+1 XP）");
       router.refresh();
     });
   }
 
+  const status =
+    todayValue != null
+      ? `今日は ${todayValue} kg で記録済み（更新できます）`
+      : lastKnownValue != null
+        ? `前回: ${lastKnownValue} kg`
+        : "今日の体重を記録しよう";
+
+  const QUICK = [-1, -0.5, -0.1, 0.1, 0.5, 1];
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex items-end gap-2">
-      <div className="flex-1 flex flex-col gap-1">
-        <Label htmlFor="weight_kg">今日の体重</Label>
-        <div className="flex items-center gap-2">
-          <Input
-            id="weight_kg"
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <Label>今日の体重</Label>
+        <p className="text-xs text-zinc-500">{status}</p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => adjust(-0.1)}
+          aria-label="0.1 減らす"
+          className="flex size-12 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 active:bg-zinc-200"
+        >
+          <Minus size={20} />
+        </button>
+        <div className="flex flex-1 items-baseline justify-center gap-1">
+          <input
             type="number"
             step="0.1"
             inputMode="decimal"
-            placeholder="例: 70.5"
-            {...register("weight_kg", { valueAsNumber: true })}
+            value={Number.isFinite(weight) ? weight : ""}
+            onChange={(e) => {
+              const v = parseFloat(e.target.value);
+              setWeight(Number.isFinite(v) ? v : 0);
+            }}
+            className="w-24 bg-transparent text-center text-3xl font-bold tabular-nums text-zinc-900 outline-none"
           />
           <span className="text-sm text-zinc-500">kg</span>
         </div>
-        {errors.weight_kg && (
-          <p className="text-xs text-red-600">{errors.weight_kg.message}</p>
-        )}
+        <button
+          type="button"
+          onClick={() => adjust(0.1)}
+          aria-label="0.1 増やす"
+          className="flex size-12 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 active:bg-zinc-200"
+        >
+          <Plus size={20} />
+        </button>
       </div>
-      <Button type="submit" disabled={isPending} className="h-10">
-        {isPending ? "記録中…" : todayValue != null ? "更新" : "記録"}
+
+      <div className="grid grid-cols-6 gap-1.5">
+        {QUICK.map((q) => (
+          <button
+            key={q}
+            type="button"
+            onClick={() => adjust(q)}
+            className="h-8 rounded-md bg-white text-xs font-medium text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50"
+          >
+            {q > 0 ? `+${q}` : q}
+          </button>
+        ))}
+      </div>
+
+      <Button type="button" onClick={onSubmit} disabled={isPending} size="lg">
+        {isPending ? "記録中…" : todayValue != null ? "更新する" : "記録する"}
       </Button>
-    </form>
+    </div>
   );
 }

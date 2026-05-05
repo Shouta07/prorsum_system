@@ -59,32 +59,16 @@ export function getDemoWeights(): { date: string; weight_kg: number }[] {
 }
 
 const TRAINING_LOG: { offset: number; content: string; duration_min: number }[] = [
-  {
-    offset: 1,
-    content: "下半身: スクワット 80kg×6×3、ルーマニアンデッド、レッグプレス。脚パンパン",
-    duration_min: 60,
-  },
-  {
-    offset: 3,
-    content: "胸+三頭: ベンチ 60kg×8×3、ダンベルフライ、プッシュアップ",
-    duration_min: 45,
-  },
-  { offset: 5, content: "有酸素中心: バイク 40分、ストレッチ多め", duration_min: 45 },
-  { offset: 7, content: "背中: 懸垂×8×3、ラットプル、ベントオーバーロウ 50kg", duration_min: 45 },
-  {
-    offset: 10,
-    content: "全身: スクワット、ベンチ、デッドリフト各 5×3。ビッグ3デー",
-    duration_min: 75,
-  },
-  { offset: 12, content: "肩+腕: ショルダープレス、サイドレイズ、バイセプス", duration_min: 45 },
-  { offset: 14, content: "ランニング 5km（27分）+ 腹筋", duration_min: 30 },
-  { offset: 18, content: "脚: ブルガリアン SQ、カーフレイズ、レッグカール", duration_min: 45 },
-  {
-    offset: 22,
-    content: "胸: インクラインベンチ、ケーブルクロス、ディップス",
-    duration_min: 45,
-  },
-  { offset: 26, content: "リカバリー日: ヨガ + ストレッチ", duration_min: 30 },
+  { offset: 1, content: "脚（スクワット 80kg×6×3）", duration_min: 60 },
+  { offset: 3, content: "胸、腕", duration_min: 45 },
+  { offset: 5, content: "有酸素", duration_min: 45 },
+  { offset: 7, content: "背中（懸垂×8×3）", duration_min: 45 },
+  { offset: 10, content: "全身（ビッグ3、各5×3）", duration_min: 75 },
+  { offset: 12, content: "肩、腕", duration_min: 45 },
+  { offset: 14, content: "有酸素、腹筋", duration_min: 30 },
+  { offset: 18, content: "脚", duration_min: 45 },
+  { offset: 22, content: "胸（インクラインベンチ、ディップス）", duration_min: 45 },
+  { offset: 26, content: "リカバリー", duration_min: 30 },
 ];
 
 type DemoTraining = {

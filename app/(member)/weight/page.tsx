@@ -37,6 +37,10 @@ export default async function WeightPage() {
   const chartData = weights.slice(-30);
   const history = [...weights].reverse().slice(0, 30);
   const todayValue = weights.find((w) => w.date === today)?.weight_kg ?? null;
+  const lastKnownValue =
+    todayValue != null
+      ? null
+      : ([...weights].reverse().find((w) => w.date !== today)?.weight_kg ?? null);
   const first = chartData[0]?.weight_kg;
   const last = chartData[chartData.length - 1]?.weight_kg;
   const delta = first != null && last != null ? +(last - first).toFixed(1) : null;
@@ -69,7 +73,7 @@ export default async function WeightPage() {
       </section>
 
       <section className="rounded-2xl bg-white p-4 ring-1 ring-zinc-100">
-        <WeightForm todayValue={todayValue} />
+        <WeightForm todayValue={todayValue} lastKnownValue={lastKnownValue} />
       </section>
 
       <section className="rounded-2xl bg-white p-4 ring-1 ring-zinc-100">
