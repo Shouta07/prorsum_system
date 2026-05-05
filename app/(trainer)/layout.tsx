@@ -28,7 +28,7 @@ export default async function TrainerLayout({ children }: { children: React.Reac
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-white">
-      {demo && <DemoBanner />}
+      {demo && <DemoBanner switchHref="/" switchLabel="会員画面へ" />}
       <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
         <h1 className="text-base font-bold text-zinc-900">トレーナー</h1>
         <nav className="flex gap-3">
