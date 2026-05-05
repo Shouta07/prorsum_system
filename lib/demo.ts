@@ -146,7 +146,7 @@ export function getDemoTrainings(): DemoTraining[] {
         id: `demo-fb-${i}-${j}`,
         type: f.type,
         content: f.content,
-        trainer_name: "佐藤トレーナー",
+        trainer_name: "市川トレーナー",
         read_at: f.read ? ymd(daysAgo(t.offset - 1)) : null,
         created_at: ymd(daysAgo(t.offset - 1)),
       })),
