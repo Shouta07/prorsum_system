@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
 import { OnboardingForm } from "./onboarding-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function OnboardingPage() {
+  if (isDemoMode()) redirect("/");
+
   const supabase = await createClient();
   const {
     data: { user },

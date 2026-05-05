@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo";
 import type { CheckinType } from "@/lib/types/database";
 
 const schema = z.object({ type: z.enum(["personal", "self"]) });
@@ -14,6 +15,11 @@ type Result =
 export async function checkIn(input: { type: CheckinType }): Promise<Result> {
   const parsed = schema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "不正な入力です" };
+
+  if (isDemoMode()) {
+    const points = parsed.data.type === "personal" ? 10 : 3;
+    return { ok: true, data: { points, leveledUp: false, newLevel: 3 } };
+  }
 
   const supabase = await createClient();
   const {

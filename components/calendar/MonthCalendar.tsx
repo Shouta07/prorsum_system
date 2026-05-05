@@ -75,6 +75,10 @@ export function MonthCalendar({
   useEffect(() => {
     if (year === initialYear && month0 === initialMonth0) return;
     startTransition(async () => {
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+        setDayMap({});
+        return;
+      }
       const supabase = createClient();
       const { start, end } = monthBounds(year, month0);
       const { data } = await supabase
