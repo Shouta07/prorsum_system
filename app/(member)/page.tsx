@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { AvatarCard } from "@/components/avatar/AvatarCard";
+import { MonthCalendar } from "@/components/calendar/MonthCalendar";
 
 export default async function MemberHome() {
   const supabase = await createClient();
@@ -8,23 +10,46 @@ export default async function MemberHome() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name")
-    .eq("id", user.id)
-    .single();
+  const now = new Date();
+  const year = now.getFullYear();
+  const month0 = now.getMonth();
+  const monthStart = `${year}-${String(month0 + 1).padStart(2, "0")}-01`;
+  const monthEnd = new Date(year, month0 + 1, 0);
+  const monthEndStr = `${year}-${String(month0 + 1).padStart(2, "0")}-${String(monthEnd.getDate()).padStart(2, "0")}`;
 
-  const displayName = profile?.display_name ?? user.email ?? "あなた";
+  const [{ data: avatar }, { data: member }, { data: checkins }] = await Promise.all([
+    supabase
+      .from("avatars")
+      .select("name, current_skin, state")
+      .eq("member_id", user.id)
+      .single(),
+    supabase
+      .from("members")
+      .select("current_xp, current_level")
+      .eq("user_id", user.id)
+      .single(),
+    supabase
+      .from("check_ins")
+      .select("date, type")
+      .gte("date", monthStart)
+      .lte("date", monthEndStr),
+  ]);
+
+  if (!avatar) redirect("/onboarding");
 
   return (
-    <main className="flex flex-1 flex-col gap-6 px-5 py-8">
-      <header>
-        <p className="text-sm text-zinc-500">ようこそ</p>
-        <h1 className="text-2xl font-bold text-zinc-900">{displayName} さん</h1>
-      </header>
-      <section className="rounded-xl bg-zinc-50 p-5 text-sm text-zinc-600 ring-1 ring-zinc-100">
-        Phase 0 ログイン確認用ホームです。次フェーズでアバター・チェックイン・カレンダーを実装します。
-      </section>
+    <main className="flex flex-col gap-4 px-4 py-5">
+      <AvatarCard
+        name={avatar.name}
+        skin={avatar.current_skin}
+        state={avatar.state}
+        currentXp={member?.current_xp ?? 0}
+      />
+      <MonthCalendar
+        initialYear={year}
+        initialMonth0={month0}
+        initialCheckins={checkins ?? []}
+      />
     </main>
   );
 }

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { BottomNav } from "@/components/bottom-nav";
+import { OnboardingForm } from "./onboarding-form";
 
-export default async function MemberLayout({ children }: { children: React.ReactNode }) {
+export default async function OnboardingPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -14,12 +14,11 @@ export default async function MemberLayout({ children }: { children: React.React
     .select("member_id")
     .eq("member_id", user.id)
     .maybeSingle();
-  if (!avatar) redirect("/onboarding");
+  if (avatar) redirect("/");
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-white">
-      <div className="flex-1 pb-20">{children}</div>
-      <BottomNav />
-    </div>
+    <main className="flex min-h-screen flex-col items-center justify-center px-6 py-12">
+      <OnboardingForm />
+    </main>
   );
 }
