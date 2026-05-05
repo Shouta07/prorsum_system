@@ -176,6 +176,36 @@ export type Database = {
         Update: Partial<{ xp_required: number; skin_id: string }>;
         Relationships: [];
       };
+      exercise_sets: {
+        Row: {
+          id: string;
+          training_id: string;
+          exercise_name: string;
+          weight_kg: number | null;
+          reps: number | null;
+          sets: number | null;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          training_id: string;
+          exercise_name: string;
+          weight_kg?: number | null;
+          reps?: number | null;
+          sets?: number | null;
+          position?: number;
+          created_at?: string;
+        };
+        Update: Partial<{
+          exercise_name: string;
+          weight_kg: number | null;
+          reps: number | null;
+          sets: number | null;
+          position: number;
+        }>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

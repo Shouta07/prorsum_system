@@ -16,7 +16,7 @@ export default async function WeightPage() {
   let weights: { date: string; weight_kg: number }[];
 
   if (isDemoMode()) {
-    weights = getDemoWeights();
+    weights = getDemoWeights(365);
   } else {
     const supabase = await createClient();
     const {
@@ -25,7 +25,7 @@ export default async function WeightPage() {
     if (!user) redirect("/login");
 
     const since = new Date();
-    since.setDate(since.getDate() - 30);
+    since.setFullYear(since.getFullYear() - 1);
     const { data } = await supabase
       .from("weights")
       .select("date, weight_kg")
@@ -34,16 +34,12 @@ export default async function WeightPage() {
     weights = data ?? [];
   }
 
-  const chartData = weights.slice(-30);
   const history = [...weights].reverse().slice(0, 30);
   const todayValue = weights.find((w) => w.date === today)?.weight_kg ?? null;
   const lastKnownValue =
     todayValue != null
       ? null
       : ([...weights].reverse().find((w) => w.date !== today)?.weight_kg ?? null);
-  const first = chartData[0]?.weight_kg;
-  const last = chartData[chartData.length - 1]?.weight_kg;
-  const delta = first != null && last != null ? +(last - first).toFixed(1) : null;
 
   return (
     <main className="flex flex-col gap-5 px-4 py-5">
@@ -53,23 +49,7 @@ export default async function WeightPage() {
       </header>
 
       <section className="rounded-2xl bg-white p-4 ring-1 ring-zinc-100">
-        <div className="flex items-end justify-between pb-2">
-          <div>
-            <p className="text-xs text-zinc-500">直近30日</p>
-            <p className="text-2xl font-bold text-zinc-900">
-              {last != null ? `${last} kg` : "—"}
-            </p>
-          </div>
-          {delta != null && (
-            <p
-              className={`text-sm font-semibold ${delta < 0 ? "text-emerald-600" : delta > 0 ? "text-rose-500" : "text-zinc-500"}`}
-            >
-              {delta > 0 ? "+" : ""}
-              {delta} kg
-            </p>
-          )}
-        </div>
-        <WeightChart data={chartData} />
+        <WeightChart data={weights} />
       </section>
 
       <section className="rounded-2xl bg-white p-4 ring-1 ring-zinc-100">

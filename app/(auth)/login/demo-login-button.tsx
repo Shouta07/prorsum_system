@@ -12,7 +12,13 @@ export function DemoLoginButton() {
         href="/"
         className="inline-flex h-12 items-center justify-center rounded-md bg-emerald-600 text-sm font-medium text-white hover:bg-emerald-700"
       >
-        デモを開始する
+        会員として開始する
+      </Link>
+      <Link
+        href="/trainer"
+        className="inline-flex h-12 items-center justify-center rounded-md bg-white text-sm font-medium text-zinc-700 ring-1 ring-zinc-300 hover:bg-zinc-50"
+      >
+        トレーナーとして開始する
       </Link>
     </div>
   );
